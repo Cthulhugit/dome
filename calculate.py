@@ -9,11 +9,7 @@ def calc_length(d=10430, num_of_belts=3, k=0.8, sup_beam_length=400):
     h = r2 - math.sqrt((r2 ** 2) - (r1 ** 2))  # Высота купола
     angle_rad = math.acos((((r2 ** 2) * 2) - (d ** 2)) / (2 * r2 ** 2))  # Угол купола (в радианах)
     angle_grad = math.degrees(angle_rad)  # Угол купола (в градусах)
-    arc_length = (math.pi * r2) / 180 * angle_grad  # Длина дуги купола
     support_beam_arc_angle_grad = math.degrees(2 * math.asin(sup_beam_length / (2 * r2)))  # Угол дуги опорной балки
-    support_beam_arc_length = (math.pi * r2) / 180 * support_beam_arc_angle_grad  # Длина дуги опорной балки
-    dome_arc_length_without_support_beam = arc_length - (
-                support_beam_arc_length * 2)  # Длина дуги купола без опорной балки
     dome_angle_grad_without_support_beam = angle_grad - (
                 support_beam_arc_angle_grad * 2)  # Угол купола (в градусах) без опорной балки
     dome_angle_rad_without_support_beam = math.radians(
@@ -27,8 +23,6 @@ def calc_length(d=10430, num_of_belts=3, k=0.8, sup_beam_length=400):
 
     """Пересмотреть после определения реальных длин балок"""
     angle_belt_grad = dome_angle_grad_without_support_beam / 2 / num_of_belts  # Угол половины пояса (градусы)
-    angle_belts_grad = {'angle_belt_' + str(i): i * 2 * angle_belt_grad for i in
-                        range(1, num_of_belts + 1)}  # Углы поясов (в градусах)
     angle_belts_rad = {'angle_belt_' + str(i): math.radians(i * 2 * angle_belt_grad) for i in
                        range(1, num_of_belts + 1)}  # Углы поясов (в радианах)
     d_belts = {'d_belt_' + str(i): 2 * r2 * math.sin(angle_belts_rad.get('angle_belt_' + str(i)) / 2) for i in
