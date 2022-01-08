@@ -2,6 +2,7 @@ import math
 
 
 def calc_length(d=10430, num_of_belts=3, k=0.8, sup_beam_length=400):
+    f = ('РВС-' + str(d) + ' k=' + str(k) + '.txt')
     """Основные вычисления"""
     def leg(c, r, h1, h2):  # Катет
         return math.sqrt((c - r)**2+(h1-h2)**2)
@@ -101,17 +102,18 @@ def calc_length(d=10430, num_of_belts=3, k=0.8, sup_beam_length=400):
         first_beam_length_a = 2 * r2 * math.sin(math.radians(angle_belt_grad_a / 2))    # Длина первой радиальной балки
         delta3 = last_belt_beams_length_a - first_beam_length_a     # Дельта 3
         if round(delta3, 12) == 0:
-            print('Угол половины пояса', angle_belt_grad_a)
-            print('Углы поясов', angle_belts_grad_a)
-            print('Диаметры поясов', d_belts_a)
-            print('Длины балок по поясам', beams_length_by_belts_a)
-            print('Радиусы поясов', r_belts_a)
-            print('Высоты поясов', belts_heigth_a)
-            print('Катет', leg2)
-            print('Длина нижней радиальной балки', last_belt_beams_length_a)
-            print('Длина верхней радиальной балки', first_beam_length_a)
-            print('Дельта 3', delta3)
-            print('Коэффициент корректировки', ratio)
+            with open(f, 'a', encoding='utf-8') as f:
+                f.write('Угол половины пояса ' + str(angle_belt_grad_a) + '\n')
+                f.write('Углы поясов ' + str(angle_belts_grad_a) + '\n')
+                f.write('Диаметры поясов ' + str(d_belts_a) + '\n')
+                f.write('Длины балок по поясам ' + str(beams_length_by_belts_a) + '\n')
+                f.write('Радиусы поясов ' + str(r_belts_a) + '\n')
+                f.write('Высоты поясов ' + str(belts_heigth_a) + '\n')
+                f.write('Катет ' + str(leg2) + '\n')
+                f.write('Длина нижней радиальной балки ' + str(last_belt_beams_length_a) + '\n')
+                f.write('Длина верхней радиальной балки ' + str(first_beam_length_a) + '\n')
+                f.write('Дельта 3 ' + str(delta3) + '\n')
+                f.write('Коэффициент корректировки ' + str(ratio))
             break
         elif delta3 > 0:
             ratio -= encrim
@@ -126,4 +128,3 @@ def calc_length(d=10430, num_of_belts=3, k=0.8, sup_beam_length=400):
 
 if __name__ == '__main__':
     calc_length()
-
