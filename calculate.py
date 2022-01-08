@@ -3,6 +3,8 @@ import math
 
 def calc_length(d=10430, num_of_belts=3, k=0.8, sup_beam_length=400):
     """Основные вычисления"""
+    def leg(c, r, h1, h2):  # Катет
+        return math.sqrt((c - r)**2+(h1-h2)**2)
     num_of_beams = {str(i): i * 6 for i in range(1, num_of_belts)}
     num_of_sup_beams = (num_of_belts - 1) * 6  # Количество опорных балок = Количество балок стягивающего пояса
     r1 = d / 2  # Радиус резервуара
@@ -18,11 +20,11 @@ def calc_length(d=10430, num_of_belts=3, k=0.8, sup_beam_length=400):
     d_last = 2 * r2 * math.sin(angle_rad_without_support_beam / 2)  # Диаметр стягивающего пояса
     tightening_belt_beams_length = d_last * math.sin(
         (math.radians(360 / num_of_sup_beams)) / 2)  # Длина балок стягивающего пояса
-    d_last_center = math.sqrt(
-        (d_last / 2) ** 2 - (tightening_belt_beams_length / 2) ** 2) * 2  # Диаметр центров балок стягивающего пояса
+    d_last_center = math.sqrt((d_last / 2) ** 2 - (
+            tightening_belt_beams_length / 2) ** 2) * 2  # Диаметр центров балок стягивающего пояса
     r_last_center = d_last_center / 2
 
-    """Пересмотреть после определения реальных длин балок"""
+    """Первоначальные размеры"""
     angle_belt_grad = angle_grad_without_support_beam / 2 / num_of_belts  # Угол половины пояса (градусы)
     angle_belts_rad = {str(i): math.radians(i * 2 * angle_belt_grad) for i in
                        range(1, num_of_belts + 1)}  # Углы поясов (в радианах)
@@ -32,12 +34,12 @@ def calc_length(d=10430, num_of_belts=3, k=0.8, sup_beam_length=400):
                range(1, num_of_belts + 1)}  # Радиусы поясов
     belts_heigth = {str(i): h - (r2 - math.sqrt(r2 ** 2 - r_belts.get(str(i)) ** 2)) for i
                     in range(1, num_of_belts + 1)}  # Высоты поясов
-    leg = math.sqrt((r_last_center - r_belts.get(str(num_of_belts - 1))) ** 2 + (
-            belts_heigth.get(str(num_of_belts)) - belts_heigth.get(
-            str(num_of_belts - 1))) ** 2)   # Расстояние от узла предпоследнего пояса \
-                                            # до середины балки последнего
-    last_belt_beams_length = math.sqrt((tightening_belt_beams_length / 2) ** 2 + leg ** 2)
-    first_beam_length = 2 * r2 * math.sin(math.radians(angle_belt_grad / 2))
+    leg1 = leg(r_last_center,   # Расстояние от узла предпоследнего пояса до середины балки последнего
+               r_belts.get(str(num_of_belts - 1)),
+               belts_heigth.get(str(num_of_belts)),
+               belts_heigth.get(str(num_of_belts - 1)))
+    last_belt_beams_length = math.sqrt((tightening_belt_beams_length / 2) ** 2 + leg1 ** 2)  # Длина балки нижнего пояса
+    first_beam_length = 2 * r2 * math.sin(math.radians(angle_belt_grad / 2))    # Длина первой радиальной балки
 
     # print('Диаметр резервуара', d)
     # print('Коэффициент кривизны', k)
@@ -70,7 +72,7 @@ def calc_length(d=10430, num_of_belts=3, k=0.8, sup_beam_length=400):
     delta1_a = delta1 / ratio  # Дельта (1) вычисляемая
     increasing_angles = math.degrees(2 * math.asin(delta1_a / (2 * r2)))  # Увеличение углов
 
-    delta2 = 0.0000000000000001
+    """Расчеты длин балок"""
     while True:
         angle_belt_grad_a = angle_grad_without_support_beam / 2 \
                             / num_of_belts + increasing_angles  # Угол половины пояса (градусы)
@@ -89,26 +91,27 @@ def calc_length(d=10430, num_of_belts=3, k=0.8, sup_beam_length=400):
         r_belts_a[str(num_of_belts)] = d_last / 2
         belts_heigth_a = {str(i): h - (r2 - math.sqrt(r2 ** 2 - r_belts_a.get(str(i)) ** 2)) for i in
                           range(1, num_of_belts + 1)}  # Высоты поясов
-        belts_heigth_a[str(num_of_belts)] = belts_heigth.get(str(num_of_belts))
-        leg_a = math.sqrt((r_last_center - r_belts_a.get(str(num_of_belts - 1))) ** 2 + (
-                belts_heigth_a.get(str(num_of_belts)) - belts_heigth_a.get(
-                str(num_of_belts - 1))) ** 2)   # Расстояние от узла предпоследнего пояса\
-                                                # до середины балки последнего
-        last_belt_beams_length_a = math.sqrt((tightening_belt_beams_length / 2) ** 2 + leg_a ** 2)
-        first_beam_length_a = 2 * r2 * math.sin(math.radians(angle_belt_grad_a / 2))
-        delta3 = last_belt_beams_length_a - first_beam_length_a
+        belts_heigth_a[str(num_of_belts)] = belts_heigth.get(str(num_of_belts))     # Высота стягивающего пояса
+        leg2 = leg(r_last_center,  # Расстояние от узла предпоследнего пояса до середины балки последнего
+                   r_belts_a.get(str(num_of_belts - 1)),
+                   belts_heigth_a.get(str(num_of_belts)),
+                   belts_heigth_a.get(str(num_of_belts - 1)))
+        last_belt_beams_length_a = math.sqrt((tightening_belt_beams_length /
+                                              2) ** 2 + leg2 ** 2)  # Длина балки нижнего пояса
+        first_beam_length_a = 2 * r2 * math.sin(math.radians(angle_belt_grad_a / 2))    # Длина первой радиальной балки
+        delta3 = last_belt_beams_length_a - first_beam_length_a     # Дельта 3
         if round(delta3, 12) == 0:
-            print(angle_belt_grad_a)
-            print(angle_belts_grad_a)
-            print(d_belts_a)
-            print(beams_length_by_belts_a)
-            print(r_belts_a)
-            print(belts_heigth_a)
-            print(leg_a)
-            print(last_belt_beams_length_a)
-            print(first_beam_length_a)
-            print(delta3)
-            print(ratio)
+            print('Угол половины пояса', angle_belt_grad_a)
+            print('Углы поясов', angle_belts_grad_a)
+            print('Диаметры поясов', d_belts_a)
+            print('Длины балок по поясам', beams_length_by_belts_a)
+            print('Радиусы поясов', r_belts_a)
+            print('Высоты поясов', belts_heigth_a)
+            print('Катет', leg2)
+            print('Длина нижней радиальной балки', last_belt_beams_length_a)
+            print('Длина верхней радиальной балки', first_beam_length_a)
+            print('Дельта 3', delta3)
+            print('Коэффициент корректировки', ratio)
             break
         elif delta3 > 0:
             ratio -= encrim
