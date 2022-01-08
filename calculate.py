@@ -6,7 +6,8 @@ def calc_length(d=10430, num_of_belts=3, k=0.8, sup_beam_length=400):
     """Основные вычисления"""
     def leg(c, r, h1, h2):  # Катет
         return math.sqrt((c - r)**2+(h1-h2)**2)
-    num_of_beams = {str(i): i * 6 for i in range(1, num_of_belts)}
+    num_of_beams = {str(i): i * 6 for i in range(1, num_of_belts)}  # Количество балок по поясам
+    num_of_beams[str(num_of_belts)] = num_of_beams[str(num_of_belts - 1)]
     num_of_sup_beams = (num_of_belts - 1) * 6  # Количество опорных балок = Количество балок стягивающего пояса
     r1 = d / 2  # Радиус резервуара
     r2 = k * d  # Радиус кривизны купола
@@ -102,18 +103,27 @@ def calc_length(d=10430, num_of_belts=3, k=0.8, sup_beam_length=400):
         first_beam_length_a = 2 * r2 * math.sin(math.radians(angle_belt_grad_a / 2))    # Длина первой радиальной балки
         delta3 = last_belt_beams_length_a - first_beam_length_a     # Дельта 3
         if round(delta3, 12) == 0:
-            with open(f, 'a', encoding='utf-8') as f:
-                f.write('Угол половины пояса ' + str(angle_belt_grad_a) + '\n')
-                f.write('Углы поясов ' + str(angle_belts_grad_a) + '\n')
-                f.write('Диаметры поясов ' + str(d_belts_a) + '\n')
-                f.write('Длины балок по поясам ' + str(beams_length_by_belts_a) + '\n')
-                f.write('Радиусы поясов ' + str(r_belts_a) + '\n')
-                f.write('Высоты поясов ' + str(belts_heigth_a) + '\n')
-                f.write('Катет ' + str(leg2) + '\n')
-                f.write('Длина нижней радиальной балки ' + str(last_belt_beams_length_a) + '\n')
-                f.write('Длина верхней радиальной балки ' + str(first_beam_length_a) + '\n')
-                f.write('Дельта 3 ' + str(delta3) + '\n')
-                f.write('Коэффициент корректировки ' + str(ratio))
+            v1x = r_belts_a.get('1')
+            v2x = - r_belts_a.get('1')
+            v1z = v2z = belts_heigth_a.get('1') - h
+            fi = math.degrees(math.acos((v1x * v2x + v1z * v2z) / (
+                    math.sqrt(v1x**2 + v1z**2)*math.sqrt(v2x**2 + v2z**2))))    # Угол между радиальными балками
+            print(fi)
+            print(num_of_beams)
+            print(tightening_belt_beams_length)
+
+            # with open(f, 'a', encoding='utf-8') as f:
+            #     f.write('Угол половины пояса ' + str(angle_belt_grad_a) + '\n')
+            #     f.write('Углы поясов ' + str(angle_belts_grad_a) + '\n')
+            #     f.write('Диаметры поясов ' + str(d_belts_a) + '\n')
+            #     f.write('Длины балок по поясам ' + str(beams_length_by_belts_a) + '\n')
+            #     f.write('Радиусы поясов ' + str(r_belts_a) + '\n')
+            #     f.write('Высоты поясов ' + str(belts_heigth_a) + '\n')
+            #     f.write('Катет ' + str(leg2) + '\n')
+            #     f.write('Длина нижней радиальной балки ' + str(last_belt_beams_length_a) + '\n')
+            #     f.write('Длина верхней радиальной балки ' + str(first_beam_length_a) + '\n')
+            #     f.write('Дельта 3 ' + str(delta3) + '\n')
+            #     f.write('Коэффициент корректировки ' + str(ratio))
             break
         elif delta3 > 0:
             ratio -= encrim
