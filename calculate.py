@@ -106,8 +106,8 @@ def calc_length(d=10430, num_of_belts=3, k=0.8, sup_beam_length=400):
             v1x = r_belts_a.get('1')
             v2x = - r_belts_a.get('1')
             v1z = v2z = belts_heigth_a.get('1') - h
-            fi = math.degrees(math.acos((v1x * v2x + v1z * v2z) / (
-                    math.sqrt(v1x**2 + v1z**2)*math.sqrt(v2x**2 + v2z**2))))    # Угол между радиальными балками
+            fi = math.degrees(math.acos((v1x * v2x + v1z * v2z) / (     ## Угол между радиальными балками
+                    math.sqrt(v1x**2 + v1z**2)*math.sqrt(v2x**2 + v2z**2))))
             print(fi)
             print(num_of_beams)
             print(tightening_belt_beams_length)
