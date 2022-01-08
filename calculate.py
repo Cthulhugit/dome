@@ -126,3 +126,4 @@ def calc_length(d=10430, num_of_belts=3, k=0.8, sup_beam_length=400):
 
 if __name__ == '__main__':
     calc_length()
+
