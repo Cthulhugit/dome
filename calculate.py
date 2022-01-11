@@ -1,11 +1,13 @@
 import math
 
 
-def calc_length(d=10430, num_of_belts=3, k=0.8, sup_beam_length=400):
+def calc_length(d=10430,
+                num_of_belts=3,
+                k=0.8,
+                sup_beam_length=400):
     f = ('РВС-' + str(d) + ' k=' + str(k) + '.txt')
     """Основные вычисления"""
-    def leg(c, r, h1, h2):  # Катет
-        return math.sqrt((c - r)**2+(h1-h2)**2)
+
     num_of_beams = {str(i): i * 6 for i in range(1, num_of_belts)}  # Количество балок по поясам
     num_of_beams[str(num_of_belts)] = num_of_beams[str(num_of_belts - 1)]
     num_of_sup_beams = (num_of_belts - 1) * 6  # Количество опорных балок = Количество балок стягивающего пояса
@@ -36,8 +38,10 @@ def calc_length(d=10430, num_of_belts=3, k=0.8, sup_beam_length=400):
                range(1, num_of_belts + 1)}  # Радиусы поясов
     belts_heigth = {str(i): h - (r2 - math.sqrt(r2 ** 2 - r_belts.get(str(i)) ** 2)) for i
                     in range(1, num_of_belts + 1)}  # Высоты поясов
-    leg1 = leg(r_last_center,   # Расстояние от узла предпоследнего пояса до середины балки последнего
-               r_belts.get(str(num_of_belts - 1)),
+
+    def leg(r, h1, h2, c=r_last_center):  # Катет
+        return math.sqrt((c - r) ** 2 + (h1 - h2) ** 2)
+    leg1 = leg(r_belts.get(str(num_of_belts - 1)),
                belts_heigth.get(str(num_of_belts)),
                belts_heigth.get(str(num_of_belts - 1)))
     last_belt_beams_length = math.sqrt((tightening_belt_beams_length / 2) ** 2 + leg1 ** 2)  # Длина балки нижнего пояса
@@ -94,8 +98,7 @@ def calc_length(d=10430, num_of_belts=3, k=0.8, sup_beam_length=400):
         belts_heigth_a = {str(i): h - (r2 - math.sqrt(r2 ** 2 - r_belts_a.get(str(i)) ** 2)) for i in
                           range(1, num_of_belts + 1)}  # Высоты поясов
         belts_heigth_a[str(num_of_belts)] = belts_heigth.get(str(num_of_belts))     # Высота стягивающего пояса
-        leg2 = leg(r_last_center,  # Расстояние от узла предпоследнего пояса до середины балки последнего
-                   r_belts_a.get(str(num_of_belts - 1)),
+        leg2 = leg(r_belts_a.get(str(num_of_belts - 1)),
                    belts_heigth_a.get(str(num_of_belts)),
                    belts_heigth_a.get(str(num_of_belts - 1)))
         last_belt_beams_length_a = math.sqrt((tightening_belt_beams_length /
