@@ -5,15 +5,33 @@ def calc_length(d=10430,
                 num_of_belts=3,
                 k=0.8,
                 sup_beam_length=400):
+    xcoordinates = dict()
+    ycoordinates = dict()
+    zcoordinates = dict()
+
     f = ('РВС-' + str(d) + ' k=' + str(k) + '.txt')
     """Основные вычисления"""
 
     num_of_beams = {str(i): i * 6 for i in range(1, num_of_belts)}  # Количество балок по поясам
     num_of_beams[str(num_of_belts)] = num_of_beams[str(num_of_belts - 1)]
+    knot_angles = [0]  # Углы поворота узлов (вершин)
+    for i in range(1, num_of_belts):
+        knot_angles.append(360 / num_of_beams.get(str(i)))
+    offset_angle = knot_angles[-1] / 2  # Угол смещения вершин последнего пояса
     num_of_sup_beams = (num_of_belts - 1) * 6  # Количество опорных балок = Количество балок стягивающего пояса
     r1 = d / 2  # Радиус резервуара
     r2 = k * d  # Радиус кривизны купола
     h = r2 - math.sqrt((r2 ** 2) - (r1 ** 2))  # Высота купола
+    xcoordinates['0'] = 0
+    ycoordinates['0'] = 0
+    zcoordinates['0'] = h
+
+    def xcord(r, fi):  # Координаты 'x'
+        return r * math.cos(math.radians(fi))
+
+    def ycord(r, fi):  # Координаты 'y'
+        return r * math.sin(math.radians(fi))
+
     angle_rad = math.acos((((r2 ** 2) * 2) - (d ** 2)) / (2 * r2 ** 2))  # Угол купола (в радианах)
     angle_grad = math.degrees(angle_rad)  # Угол купола (в градусах)
     support_beam_arc_angle_grad = math.degrees(2 * math.asin(sup_beam_length / (2 * r2)))  # Угол дуги опорной балки
@@ -114,6 +132,17 @@ def calc_length(d=10430,
             print(fi)
             print(num_of_beams)
             print(tightening_belt_beams_length)
+            print(knot_angles)
+            print(offset_angle)
+            print(r_belts_a)
+
+            for i in range(1, num_of_belts):
+                for j in range(num_of_beams.get(str(i))):
+                    xcoordinates[str(i) + '-' + str(j)] = round(xcord(r_belts_a.get(str(i)), j * knot_angles[i]), 10)
+                    ycoordinates[str(i) + '-' + str(j)] = round(ycord(r_belts_a.get(str(i)), j * knot_angles[i]), 10)
+
+            print(xcoordinates)
+            print(ycoordinates)
 
             # with open(f, 'a', encoding='utf-8') as f:
             #     f.write('Угол половины пояса ' + str(angle_belt_grad_a) + '\n')
