@@ -141,6 +141,12 @@ def calc_length(d=10430,
                     xcoordinates[str(i) + '-' + str(j)] = round(xcord(r_belts_a.get(str(i)), j * knot_angles[i]), 10)
                     ycoordinates[str(i) + '-' + str(j)] = round(ycord(r_belts_a.get(str(i)), j * knot_angles[i]), 10)
 
+            for i in range(num_of_beams[str(num_of_belts)]):
+                xcoordinates[str(num_of_belts) + '-' + str(i)] = round(
+                    xcord(r_belts_a.get(str(num_of_belts)), offset_angle + i * knot_angles[num_of_belts-1]), 10)
+                ycoordinates[str(num_of_belts) + '-' + str(i)] = round(
+                    ycord(r_belts_a.get(str(num_of_belts)), offset_angle + i * knot_angles[num_of_belts - 1]), 10)
+
             print(xcoordinates)
             print(ycoordinates)
 
