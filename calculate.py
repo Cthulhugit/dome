@@ -8,6 +8,7 @@ def calc_length(d=10430,
     xcoordinates = dict()
     ycoordinates = dict()
     zcoordinates = dict()
+    literal = tuple('0abcdefghijklmnopqrstuvwxyz')[0:num_of_belts+1]
 
     f = ('РВС-' + str(d) + ' k=' + str(k) + '.txt')
     """Основные вычисления"""
@@ -129,26 +130,26 @@ def calc_length(d=10430,
             v1z = v2z = belts_heigth_a.get('1') - h
             fi = math.degrees(math.acos((v1x * v2x + v1z * v2z) / (     # Угол между радиальными балками
                     math.sqrt(v1x**2 + v1z**2)*math.sqrt(v2x**2 + v2z**2))))
-            print(fi)
-            print(num_of_beams)
-            print(tightening_belt_beams_length)
-            print(knot_angles)
-            print(offset_angle)
-            print(r_belts_a)
 
             for i in range(1, num_of_belts):
                 for j in range(num_of_beams.get(str(i))):
-                    xcoordinates[str(i) + '-' + str(j)] = round(xcord(r_belts_a.get(str(i)), j * knot_angles[i]), 10)
-                    ycoordinates[str(i) + '-' + str(j)] = round(ycord(r_belts_a.get(str(i)), j * knot_angles[i]), 10)
+                    xcoordinates[literal[i] + str(j)] = round(xcord(r_belts_a.get(str(i)), j * knot_angles[i]), 10)
+                    ycoordinates[literal[i] + str(j)] = round(ycord(r_belts_a.get(str(i)), j * knot_angles[i]), 10)
 
             for i in range(num_of_beams[str(num_of_belts)]):
-                xcoordinates[str(num_of_belts) + '-' + str(i)] = round(
+                xcoordinates[literal[num_of_belts] + str(i)] = round(
                     xcord(r_belts_a.get(str(num_of_belts)), offset_angle + i * knot_angles[num_of_belts-1]), 10)
-                ycoordinates[str(num_of_belts) + '-' + str(i)] = round(
+                ycoordinates[literal[num_of_belts] + str(i)] = round(
                     ycord(r_belts_a.get(str(num_of_belts)), offset_angle + i * knot_angles[num_of_belts - 1]), 10)
+
+            for i in range(num_of_beams[str(num_of_belts)]):
+                xcoordinates['z' + str(i)] = round(xcord(r1, offset_angle + i * knot_angles[num_of_belts - 1]), 10)
+                ycoordinates['z' + str(i)] = round(ycord(r1, offset_angle + i * knot_angles[num_of_belts - 1]), 10)
+
 
             print(xcoordinates)
             print(ycoordinates)
+            print(literal)
 
             # with open(f, 'a', encoding='utf-8') as f:
             #     f.write('Угол половины пояса ' + str(angle_belt_grad_a) + '\n')
