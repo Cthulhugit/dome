@@ -146,10 +146,13 @@ def calc_length(d=10430,
                 xcoordinates['z' + str(i)] = round(xcord(r1, offset_angle + i * knot_angles[num_of_belts - 1]), 10)
                 ycoordinates['z' + str(i)] = round(ycord(r1, offset_angle + i * knot_angles[num_of_belts - 1]), 10)
 
-
-            print(xcoordinates)
-            print(ycoordinates)
+            print('Высоты поясов', belts_heigth_a)
+            print('Координаты по x', xcoordinates)
+            print('Координаты по y', ycoordinates)
             print(literal)
+            print('Радиус кривизны купола ', r2)
+            print('Высота купола', h)
+            print('Формула сферы: x^2+y^2+z^2 =', r2**2)
 
             # with open(f, 'a', encoding='utf-8') as f:
             #     f.write('Угол половины пояса ' + str(angle_belt_grad_a) + '\n')
