@@ -3,7 +3,7 @@ import math
 
 def calc_length(d=10430,
                 num_of_belts=3,
-                k=0.8,
+                k=2.4,
                 sup_beam_length=400):
     xcoordinates = dict()
     ycoordinates = dict()
@@ -32,6 +32,9 @@ def calc_length(d=10430,
 
     def ycord(r, fi):  # Координаты 'y'
         return r * math.sin(math.radians(fi))
+
+    def length(x1, y1, z1, x2, y2, z2):
+        return math.sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)
 
     angle_rad = math.acos((((r2 ** 2) * 2) - (d ** 2)) / (2 * r2 ** 2))  # Угол купола (в радианах)
     angle_grad = math.degrees(angle_rad)  # Угол купола (в градусах)
@@ -146,6 +149,27 @@ def calc_length(d=10430,
                 xcoordinates['z' + str(i)] = round(xcord(r1, offset_angle + i * knot_angles[num_of_belts - 1]), 10)
                 ycoordinates['z' + str(i)] = round(ycord(r1, offset_angle + i * knot_angles[num_of_belts - 1]), 10)
 
+            length_a1 = length(xcoordinates.get('a0'),
+                               ycoordinates.get('a0'),
+                               belts_heigth_a.get('1'),
+                               xcoordinates.get('a1'),
+                               ycoordinates.get('a1'),
+                               belts_heigth_a.get('1'))
+
+            length_b1 = length(xcoordinates.get('b0'),
+                               ycoordinates.get('b0'),
+                               belts_heigth_a.get('2'),
+                               xcoordinates.get('b1'),
+                               ycoordinates.get('b1'),
+                               belts_heigth_a.get('2'))
+
+            length_b3 = length(xcoordinates.get('a0'),
+                               ycoordinates.get('a0'),
+                               belts_heigth_a.get('1'),
+                               xcoordinates.get('b1'),
+                               ycoordinates.get('b1'),
+                               belts_heigth_a.get('2'))
+
             print('Высоты поясов', belts_heigth_a)
             print('Координаты по x', xcoordinates)
             print('Координаты по y', ycoordinates)
@@ -153,6 +177,12 @@ def calc_length(d=10430,
             print('Радиус кривизны купола ', r2)
             print('Высота купола', h)
             print('Формула сферы: x^2+y^2+z^2 =', r2**2)
+            print(fi)
+            print('Длина a1', length_a1)
+            print('Длина b1', length_b1)
+            print('Длина b3', length_b3)
+            print('Длина c1', tightening_belt_beams_length)
+            print('Длины балок по поясам ' + str(beams_length_by_belts_a))
 
             # with open(f, 'a', encoding='utf-8') as f:
             #     f.write('Угол половины пояса ' + str(angle_belt_grad_a) + '\n')
