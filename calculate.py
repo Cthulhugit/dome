@@ -8,6 +8,7 @@ def calc_length(d=10430,
     xcoordinates = dict()
     ycoordinates = dict()
     zcoordinates = dict()
+    lengths = dict()
     literal = tuple('0abcdefghijklmnopqrstuvwxyz')[0:num_of_belts+1]
 
     f = ('РВС-' + str(d) + ' k=' + str(k) + '.txt')
@@ -34,7 +35,7 @@ def calc_length(d=10430,
         return r * math.sin(math.radians(fi))
 
     def length(x1, y1, z1, x2, y2, z2):
-        return math.sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)
+        return round(math.sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2), 10)
 
     angle_rad = math.acos((((r2 ** 2) * 2) - (d ** 2)) / (2 * r2 ** 2))  # Угол купола (в радианах)
     angle_grad = math.degrees(angle_rad)  # Угол купола (в градусах)
@@ -105,9 +106,11 @@ def calc_length(d=10430,
         angle_belt_grad_a = angle_grad_without_support_beam / 2 \
                             / num_of_belts + increasing_angles  # Угол половины пояса (градусы)
         angle_belts_grad_a = {str(i): i * 2 * angle_belt_grad_a for i in
-                              range(1, num_of_belts + 1)}  # Углы поясов (в градусах)
+                              range(1, num_of_belts)}  # Углы поясов (в градусах)
+        angle_belts_grad_a[str(num_of_belts)] = angle_grad_without_support_beam
         angle_belts_rad_a = {str(i): math.radians(i * 2 * angle_belt_grad_a) for i in
-                             range(1, num_of_belts + 1)}  # Углы поясов (в радианах)
+                             range(1, num_of_belts)}  # Углы поясов (в радианах)
+        angle_belts_rad_a[str(num_of_belts)] = angle_rad_without_support_beam
         d_belts_a = {str(i): 2 * r2 * math.sin(angle_belts_rad_a.get(str(i)) / 2) for i in
                      range(1, num_of_belts)}  # Диаметры поясов
         d_belts_a[str(num_of_belts)] = d_last
@@ -127,7 +130,7 @@ def calc_length(d=10430,
                                               2) ** 2 + leg2 ** 2)  # Длина балки нижнего пояса
         first_beam_length_a = 2 * r2 * math.sin(math.radians(angle_belt_grad_a / 2))    # Длина первой радиальной балки
         delta3 = last_belt_beams_length_a - first_beam_length_a     # Дельта 3
-        if round(delta3, 12) == 0:
+        if round(delta3, 10) == 0:  # Вотрое значение (10) - до какого символа проводить расчеты
             v1x = r_belts_a.get('1')
             v2x = - r_belts_a.get('1')
             v1z = v2z = belts_heigth_a.get('1') - h
@@ -148,6 +151,41 @@ def calc_length(d=10430,
             for i in range(num_of_beams[str(num_of_belts)]):
                 xcoordinates['z' + str(i)] = round(xcord(r1, offset_angle + i * knot_angles[num_of_belts - 1]), 10)
                 ycoordinates['z' + str(i)] = round(ycord(r1, offset_angle + i * knot_angles[num_of_belts - 1]), 10)
+
+            # Длины кольцевых балок
+            for i in range(1, num_of_belts+1):
+                lengths[literal[i] + str(1)] = round(length(xcoordinates.get(literal[i] + str(i)),
+                                                              ycoordinates.get(literal[i] + str(i)),
+                                                              belts_heigth_a.get(str(i)),
+                                                              xcoordinates.get(literal[i] + str(i+1)),
+                                                              ycoordinates.get(literal[i] + str(i+1)),
+                                                              belts_heigth_a.get(str(i))), 10)
+
+            # Длины радиальных балок (с 3-их)
+            if num_of_belts == 3:
+                lengths[literal[2] + str(3)] = round(length(xcoordinates.get(literal[1] + str(0)),
+                                                            ycoordinates.get(literal[1] + str(0)),
+                                                            belts_heigth_a.get(str(1)),
+                                                            xcoordinates.get(literal[2] + str(1)),
+                                                            ycoordinates.get(literal[2] + str(1)),
+                                                            belts_heigth_a.get(str(2))), 10)
+            else:
+                for i in range(3, num_of_belts+1):
+                    m = 3
+                    j = 0
+                    n = i - 2
+                    while j < n:
+                        print(i)
+                        print(j)
+                        print(n)
+                        lengths[literal[i-1] + str(m)] = round(length(xcoordinates.get(literal[i-2] + str(j)),
+                                                                      ycoordinates.get(literal[i-2] + str(j)),
+                                                                      belts_heigth_a.get(str(i-2)),
+                                                                      xcoordinates.get(literal[i-1] + str(j+1)),
+                                                                      ycoordinates.get(literal[i-1] + str(j+1)),
+                                                                      belts_heigth_a.get(str(i-1))), 10)
+                        j += 1
+                        m += 1
 
             length_a1 = length(xcoordinates.get('a0'),
                                ycoordinates.get('a0'),
@@ -177,13 +215,17 @@ def calc_length(d=10430,
             print('Радиус кривизны купола ', r2)
             print('Высота купола', h)
             print('Формула сферы: x^2+y^2+z^2 =', r2**2)
-            print((180-fi)/2)
-            print(90-math.acos(first_beam_length_a/2/r2)*180/math.pi)
+            print('Угол радиальных балок', (180-fi)/2)
+            print('Угол радиальных балок', 90-math.acos(first_beam_length_a/2/r2)*180/math.pi)
             print('Длина a1', length_a1)
             print('Длина b1', length_b1)
             print('Длина b3', length_b3)
             print('Длина c1', tightening_belt_beams_length)
             print('Длины балок по поясам ' + str(beams_length_by_belts_a))
+            print('Диаметры поясов ' + str(d_belts_a))
+            print('Углы поясов ' + str(angle_belts_grad_a) + '\n')
+            print(angle_grad_without_support_beam)
+            print(lengths)
 
             # with open(f, 'a', encoding='utf-8') as f:
             #     f.write('Угол половины пояса ' + str(angle_belt_grad_a) + '\n')
