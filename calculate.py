@@ -117,6 +117,7 @@ def calc_length(d=10430,
         beams_length_by_belts_a = {str(i): d_belts_a.get(str(i)) * math.sin(
             (math.radians(360 / num_of_beams.get(str(i)))) / 2) for i in
                                    range(1, num_of_belts)}  # Длины балок по поясам
+        beams_length_by_belts_a[str(num_of_belts)] = tightening_belt_beams_length
         r_belts_a = {str(i): d_belts_a.get(str(i)) / 2 for i in
                      range(1, num_of_belts)}  # Радиусы поясов
         r_belts_a[str(num_of_belts)] = d_last / 2
@@ -154,12 +155,7 @@ def calc_length(d=10430,
 
             # Длины кольцевых балок
             for i in range(1, num_of_belts+1):
-                lengths[literal[i] + str(1)] = round(length(xcoordinates.get(literal[i] + str(i)),
-                                                              ycoordinates.get(literal[i] + str(i)),
-                                                              belts_heigth_a.get(str(i)),
-                                                              xcoordinates.get(literal[i] + str(i+1)),
-                                                              ycoordinates.get(literal[i] + str(i+1)),
-                                                              belts_heigth_a.get(str(i))), 10)
+                lengths[literal[i]+str(1)] = round(beams_length_by_belts_a.get(str(i)), 10)
 
             # Длины радиальных балок (с 3-их)
             if num_of_belts == 3:
@@ -187,27 +183,6 @@ def calc_length(d=10430,
                         j += 1
                         m += 1
 
-            length_a1 = length(xcoordinates.get('a0'),
-                               ycoordinates.get('a0'),
-                               belts_heigth_a.get('1'),
-                               xcoordinates.get('a1'),
-                               ycoordinates.get('a1'),
-                               belts_heigth_a.get('1'))
-
-            length_b1 = length(xcoordinates.get('b0'),
-                               ycoordinates.get('b0'),
-                               belts_heigth_a.get('2'),
-                               xcoordinates.get('b1'),
-                               ycoordinates.get('b1'),
-                               belts_heigth_a.get('2'))
-
-            length_b3 = length(xcoordinates.get('a0'),
-                               ycoordinates.get('a0'),
-                               belts_heigth_a.get('1'),
-                               xcoordinates.get('b1'),
-                               ycoordinates.get('b1'),
-                               belts_heigth_a.get('2'))
-
             print('Высоты поясов', belts_heigth_a)
             print('Координаты по x', xcoordinates)
             print('Координаты по y', ycoordinates)
@@ -217,10 +192,6 @@ def calc_length(d=10430,
             print('Формула сферы: x^2+y^2+z^2 =', r2**2)
             print('Угол радиальных балок', (180-fi)/2)
             print('Угол радиальных балок', 90-math.acos(first_beam_length_a/2/r2)*180/math.pi)
-            print('Длина a1', length_a1)
-            print('Длина b1', length_b1)
-            print('Длина b3', length_b3)
-            print('Длина c1', tightening_belt_beams_length)
             print('Длины балок по поясам ' + str(beams_length_by_belts_a))
             print('Диаметры поясов ' + str(d_belts_a))
             print('Углы поясов ' + str(angle_belts_grad_a) + '\n')
