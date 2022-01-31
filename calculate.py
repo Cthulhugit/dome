@@ -8,8 +8,10 @@ def calc_length(d=10430,
     xcoordinates = dict()
     ycoordinates = dict()
     zcoordinates = dict()
-    lengths = dict()
+    lengths = dict()    # Длины балок
     literal = tuple('0abcdefghijklmnopqrstuvwxyz')[0:num_of_belts+1]
+    quantity = {literal[i]: i + 1 for i in range(1, num_of_belts)}  # Количество типоразмеров по поясам
+    quantity[literal[-1]] = 2
 
     f = ('РВС-' + str(d) + ' k=' + str(k) + '.txt')
     """Основные вычисления"""
@@ -171,9 +173,6 @@ def calc_length(d=10430,
                     j = 0
                     n = i - 2
                     while j < n:
-                        print(i)
-                        print(j)
-                        print(n)
                         lengths[literal[i-1] + str(m)] = round(length(xcoordinates.get(literal[i-2] + str(j)),
                                                                       ycoordinates.get(literal[i-2] + str(j)),
                                                                       belts_heigth_a.get(str(i-2)),
@@ -183,20 +182,24 @@ def calc_length(d=10430,
                         j += 1
                         m += 1
 
-            print('Высоты поясов', belts_heigth_a)
-            print('Координаты по x', xcoordinates)
-            print('Координаты по y', ycoordinates)
-            print(literal)
+            # print('Высоты поясов', belts_heigth_a)
+            # print('Координаты по x', xcoordinates)
+            # print('Координаты по y', ycoordinates)
+            print(len(literal))
             print('Радиус кривизны купола ', r2)
-            print('Высота купола', h)
-            print('Формула сферы: x^2+y^2+z^2 =', r2**2)
-            print('Угол радиальных балок', (180-fi)/2)
-            print('Угол радиальных балок', 90-math.acos(first_beam_length_a/2/r2)*180/math.pi)
-            print('Длины балок по поясам ' + str(beams_length_by_belts_a))
-            print('Диаметры поясов ' + str(d_belts_a))
-            print('Углы поясов ' + str(angle_belts_grad_a) + '\n')
-            print(angle_grad_without_support_beam)
+            print('Радиусы поясов ', str(r_belts_a))
+            # print('Высота купола', h)
+            # print('Формула сферы: x^2+y^2+z^2 =', r2**2)
+            # print('Угол радиальных балок', (180-fi)/2)
+            # print('Угол радиальных балок', 90-math.acos(first_beam_length_a/2/r2)*180/math.pi)
+            # print('Длины балок по поясам ' + str(beams_length_by_belts_a))
+            # print('Диаметры поясов ' + str(d_belts_a))
+            # print('Углы поясов ' + str(angle_belts_grad_a) + '\n')
+            # print(angle_grad_without_support_beam)
             print(lengths)
+            print('Длина нижней радиальной балки ', last_belt_beams_length_a)
+            print(knot_angles)
+            print(quantity)
 
             # with open(f, 'a', encoding='utf-8') as f:
             #     f.write('Угол половины пояса ' + str(angle_belt_grad_a) + '\n')
@@ -220,6 +223,21 @@ def calc_length(d=10430,
             ratio += encrim
             delta1_a = delta1 / ratio  # Дельта (1) вычисляемая
             increasing_angles = math.degrees(2 * math.asin(delta1_a / (2 * r2)))  # Увеличение углов
+
+    # Вычисляем массу всех балок (по центрам пока что)
+    mass = 0
+    for key in quantity:
+        for i in range(1, quantity[key]+1):
+            if i == 1:
+                mass += num_of_beams.get(str(literal.index(key))) * lengths.get(key+str(i))
+            elif i == 2:
+                pass
+            else:
+                mass += lengths.get(key+str(i)) * 12
+    mass += first_beam_length_a * 6 * (len(literal) - 2) + first_beam_length_a * num_of_beams[str(len(literal) - 2)]
+    mass *= (6.44/1000)
+    print(mass)
+    print(num_of_beams)
 
 
 if __name__ == '__main__':
